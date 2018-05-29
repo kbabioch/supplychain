@@ -12,6 +12,23 @@ in identifying potential improvement when retrieving sources, e.g.:
 It also contains tools to quickly create keyrings, required for verification of
 signed source files.
 
+## TOOLS
+
+### sch-keyring
+
+This script will extract the OpenPGP key IDs that were used to sign the
+provided files and will try to retrieve them using public keyservers.
+It minimizes these keys and exports the whole keyring to a file. The
+resulting keyring file can be used to verify all available sources, e.g.
+within a RPM spec file.
+
+### sch-https-replace
+
+This script scans the input for any `http://` URLs, and checks whether the
+appropriate `https://` URL is also available. It replaces these URLs, if
+applicable. Optionally, it can also check whether the returned resource is
+actually the same.
+
 ## LICENSE
 
 [![GNU GPLv3](http://www.gnu.org/graphics/gplv3-127x51.png "GNU GPLv3")](http://www.gnu.org/licenses/gpl.html)
