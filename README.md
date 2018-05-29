@@ -1,6 +1,6 @@
 # SUPPLY CHAIN HARDENING
 
-[![Build Status](https://travis-ci.org/kbabioch/supply-chain-security.svg?branch=master)](https://travis-ci.org/kbabioch/supply-chain-security)
+[![Build status](https://travis-ci.org/kbabioch/supply-chain-security.svg?branch=master)](https://travis-ci.org/kbabioch/supply-chain-security)
 [![Code coverage](https://codecov.io/gh/kbabioch/supply-chain-security/branch/master/graph/badge.svg)](https://codecov.io/gh/kbabioch/supply-chain-security)
 
 This repository contains a set of tools and scripts to improve the supply chain
