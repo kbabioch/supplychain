@@ -1,1 +1,6 @@
+# Byte code
 __pycache__/
+*.py[cod]
+
+# Unit test
+.pytest_cache/
