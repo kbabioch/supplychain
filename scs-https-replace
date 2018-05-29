@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import sch.https
+import scs.https
 import sys
 
 # TODO Add note about URLs being hit
@@ -47,6 +47,6 @@ args = parse_args(sys.argv[1:])
 
 # Iterate over all lines from input and invoke callback for each http:// URL
 for line in sys.stdin:
-  line = sch.https.replaceHttp(line)
+  line = scs.https.replaceHttp(line)
   print(line)
 

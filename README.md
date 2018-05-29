@@ -1,12 +1,12 @@
-# SUPPLY CHAIN HARDENING
+# SUPPLY CHAIN SECURITY
 
 [![Build status](https://travis-ci.org/kbabioch/supply-chain-security.svg?branch=master)](https://travis-ci.org/kbabioch/supply-chain-security)
 [![Code coverage](https://codecov.io/gh/kbabioch/supply-chain-security/branch/master/graph/badge.svg)](https://codecov.io/gh/kbabioch/supply-chain-security)
 [![Coverity scan](https://scan.coverity.com/projects/15865/badge.svg)](https://scan.coverity.com/projects/kbabioch-supply-chain-security)
 
-This repository contains a set of tools and scripts to improve the supply chain
-security around RPM files and the Open Build Service (OBS). This can be helpful
-in identifying potential improvement when retrieving sources, e.g.:
+This repository contains a set of tools and scripts to analyze and improve the
+supply chain security around RPM files and the Open Build Service (OBS). This
+can be helpful in identifying potential improvement when retrieving sources, e.g.:
 
 - Scan for unused signature files, that are available upstream, but not used
   during the build process to verify the authenticity of the sources
@@ -18,7 +18,7 @@ signed source files.
 
 ## TOOLS
 
-### sch-keyring
+### scs-keyring
 
 This script will extract the OpenPGP key IDs that were used to sign the
 provided files and will try to retrieve them using public keyservers.
@@ -26,7 +26,7 @@ It minimizes these keys and exports the whole keyring to a file. The
 resulting keyring file can be used to verify all available sources, e.g.
 within a RPM spec file.
 
-### sch-https-replace
+### scs-https-replace
 
 This script scans the input for any `http://` URLs, and checks whether the
 appropriate `https://` URL is also available. It replaces these URLs, if

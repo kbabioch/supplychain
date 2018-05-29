@@ -1,5 +1,5 @@
 - Testing: Add test suite / infrastructure with pytest
 - More structure with classes / libraries
 - https:// check for sources and URL, etc.
-- sch-https-replace
-- sch-https-check
+- scs-https-replace
+- scs-https-check
