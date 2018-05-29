@@ -3,4 +3,6 @@ language: python
 python:
   - "3.6"
 script:
-  - PYTHONPATH=. pytest
+  - PYTHONPATH=. pytest --cov=./ -v
+after_success:
+  - codecov
