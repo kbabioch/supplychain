@@ -1,0 +1,52 @@
+#! /usr/bin/env python3
+#
+# Copyright (c) 2018 Karol Babioch <kbabioch@suse.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import sch.https
+import sys
+
+# TODO Add note about URLs being hit
+# TODO Multi-threading
+# TODO logging
+# TODO stdin without parameter by default, also read from file(s) parameter
+# TODO What about \r \n and double backslash, etc.?
+# TODO Use logging to log retrieval of URLs, output only findings
+# TODO Check-only mode and/or dedicated binary, where only scan is performed, no actual replacement
+# TODO -i parameter for inplace replace within files (rather than printing to stdout)
+# TODO -s parameter for summary instead of printing to stdout
+# TODO Option for summary (requests made, http count, https count, urls found, etc.)
+# TODO -c Parameter to actually download content and compare against http version (with hash, etc.?)
+# TODO -t Timeout parameter?
+# TODO Add force parameter (-f) to replace URL anyway, even if resource is currently not available?
+# TODO Add into description that internet connection is required and this is conservate, e.g. when resource is temporary not reachable, it won't be replaced
+# TODO OOP -> class HTTPSChecker -> HTTPSReplacer
+# TODO Implement as Reader? Subclass of file object?
+
+# Argument parser
+def parse_args(args):
+    parser = argparse.ArgumentParser(description='Checks whether any non-https URLs in the input are also available via https') # TODO
+    #parser.add_argument('files', metavar='FILE', nargs='+', help='File(s) to replace URLs in (optional, stdin by default)', type=str) # TODO Implement files and stdin
+    return parser.parse_args(args)
+
+# Parse arguments
+args = parse_args(sys.argv[1:])
+
+# Iterate over all lines from input and invoke callback for each http:// URL
+for line in sys.stdin:
+  line = sch.https.replaceHttp(line)
+  print(line)
+
