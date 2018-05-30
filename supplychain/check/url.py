@@ -15,6 +15,7 @@
 
 # TODO Implement checkContent
 # TODO Ignore body? HEAD cannot be used, since it yields different results? http://heise.de -> 30
+# TODO Take 301 redirection,etc. into consideration
 
 import requests
 from urllib.parse import urlparse, urlunparse
