@@ -48,5 +48,7 @@ args = parse_args(sys.argv[1:])
 # Iterate over all lines from input and invoke callback for each http:// URL
 for line in sys.stdin:
   line = supplychain.https.replaceHttp(line)
-  print(line)
+  sys.stdout.write(line)
+
+sys.stdout.flush()
 
