@@ -15,9 +15,9 @@
 
 # TODO Implement checkContent
 # TODO Ignore body? HEAD cannot be used, since it yields different results? http://heise.de -> 30
-# TODO URL validation during init? urllib.parse(), etc.
 
 import requests
+from urllib.parse import urlparse, urlunparse
 
 def isAvailable(url):
   try:
@@ -31,18 +31,33 @@ def isAvailable(url):
 class URL:
 
   def __init__(self, url, checkContent = False):
-    self.url = url
+    try:
+      self.url = urlparse(url)
+    except ValueError:
+      raise ValueError('Invalid URL')
+    if self.url.scheme not in ['http', 'https']:
+      raise ValueError('Invalid URL scheme')
     self.checkContent = checkContent
 
+  def isHttp(self):
+    return self.url.scheme == 'http'
+
+  def isHttps(self):
+    return self.url.scheme == 'https'
+
   def isAvailableHttp(self):
-    return isAvailable(self.url)
+    return isAvailable(self.getHttp())
 
   def isAvailableHttps(self):
-    return isAvailable(self.url.replace('http://', 'https://', 1))
+    return isAvailable(self.getHttps())
 
   def getHttp(self):
-    return self.url
+    u = list(self.url)
+    u[0] = 'http'
+    return urlunparse(u)
 
   def getHttps(self):
-    return self.url.replace('http://', 'https://', 1)
+    u = list(self.url)
+    u[0] = 'https'
+    return urlunparse(u)
 
