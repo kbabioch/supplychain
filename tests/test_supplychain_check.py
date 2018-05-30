@@ -7,7 +7,7 @@ availableUrlHttps = 'https://babioch.de'
 
 unavailableUrl = 'http://nonexisting.babioch.de'
 
-class TestSupplychainCheck:
+class TestSupplychainCheckURL:
 
   def test_isAvailable(self):
     # Implicit check of network connectivity
@@ -40,4 +40,21 @@ class TestSupplychainCheck:
   def test_invalidURLScheme(self):
     with pytest.raises(ValueError):
       supplychain.check.url.URL('ftp://')
+
+gnupgUrl = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2'
+
+class TestSupplychainCheckSignature:
+
+  def test_isAvailableSig(self):
+    checker = supplychain.check.signature.Signature(gnupgUrl)
+    assert True == checker.isAvailableSig()
+
+  def test_isNotAvailableSignature(self):
+    checker = supplychain.check.signature.Signature(unavailableUrl)
+    assert False == checker.isAvailableSig()
+
+  def test_getSignedUrl(self):
+    checker = supplychain.check.signature.Signature(gnupgUrl)
+    assert True == checker.isAvailableSig()
+    assert checker.getSignedUrl() == gnupgUrl + '.sig'
 
