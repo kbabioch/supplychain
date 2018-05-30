@@ -1,7 +1,7 @@
 import supplychain.rpm.spec
 import pytest
 
-class TestRPMSpecParser:
+class TestSupplychainRPM:
 
   def test_invalidSpecFile(self):
     with pytest.raises(supplychain.rpm.exceptions.Error):

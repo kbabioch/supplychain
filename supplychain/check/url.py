@@ -15,6 +15,7 @@
 
 # TODO Implement checkContent
 # TODO Ignore body? HEAD cannot be used, since it yields different results? http://heise.de -> 30
+# TODO URL validation during init? urllib.parse(), etc.
 
 import requests
 
@@ -27,7 +28,7 @@ def isAvailable(url):
     pass
   return False
 
-class Checker:
+class URL:
 
   def __init__(self, url, checkContent = False):
     self.url = url

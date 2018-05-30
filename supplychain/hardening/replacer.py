@@ -13,5 +13,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from supplychain.sig.checker import Checker
+import supplychain.check.url
+import re
+
+# Replaces http:// by https:// when available
+def callbackHttpUrl(match):
+  url = match.group(0)
+  checker = supplychain.check.url.URL(url)
+  availableHttp = checker.isAvailableHttp()
+  availableHttps = checker.isAvailableHttps()
+
+  if availableHttp and availableHttps:
+    return checker.getHttps()
+
+  return checker.getHttp()
+
+def replaceHttp(input):
+  return re.sub('http://[^\s]+', callbackHttpUrl, input)
 

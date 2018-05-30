@@ -19,7 +19,7 @@
 
 import requests
 
-class Checker:
+class Signature:
 
   def __init__(self, url):
     self.url = url
