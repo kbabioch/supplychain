@@ -6,7 +6,7 @@
 
 This repository contains a set of tools and scripts to analyze and improve the
 supply chain security around RPM files and the Open Build Service (OBS). This
-can be helpful in identifying potential improvement when retrieving sources, e.g.:
+can be helpful in identifying potentials to improve on security, e.g.:
 
 - Scan for unused signature files, that are available upstream, but not used
   during the build process to verify the authenticity of the sources
