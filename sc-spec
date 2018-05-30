@@ -17,9 +17,9 @@
 
 import argparse
 import sys
-import rpm.spec
-import scs.https
-import scs.sig
+import supplychain.rpm.spec
+import supplychain.https
+import supplychain.sig
 
 # Argument parser
 def parse_args(args):
@@ -35,15 +35,15 @@ for file in args.files:
   with open(file) as f:
     for line in f:
       # TODO Method to get URLs in a line needed (instead of comparison hack and stripping)
-      if line != scs.https.replaceHttp(line):
+      if line != supplychain.https.replaceHttp(line):
         print('Potentially unused https:// found: {}'.format(line.strip()))
 
   # Get sources from RPM file
-  p = rpm.spec.parser(file)
+  p = supplychain.rpm.spec.parser(file)
   sources = p.get_sources()
 
   for source in sources:
-    checker = scs.sig.Checker(source[1])
+    checker = supplychain.sig.Checker(source[1])
     if checker.isAvailableSig():
       print('Signed source available for: {}'.format(checker.getSignedUrl()))
 

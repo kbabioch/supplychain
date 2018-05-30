@@ -1,4 +1,4 @@
-# SUPPLY CHAIN SECURITY
+# SUPPLY CHAIN
 
 [![Build status](https://travis-ci.org/kbabioch/supplychain.svg?branch=master)](https://travis-ci.org/kbabioch/supplychain)
 [![Code coverage](https://codecov.io/gh/kbabioch/supplychain/branch/master/graph/badge.svg)](https://codecov.io/gh/kbabioch/supplychain)
@@ -17,7 +17,7 @@ signed source files.
 
 ## TOOLS
 
-### scs-keyring
+### sc-keyring
 
 This script will extract the OpenPGP key IDs that were used to sign the
 provided files and will try to retrieve them using public keyservers.
@@ -25,7 +25,7 @@ It minimizes these keys and exports the whole keyring to a file. The
 resulting keyring file can be used to verify all available sources, e.g.
 within a RPM spec file.
 
-### scs-https-replace
+### sc-https-replace
 
 This script scans the input for any `http://` URLs, and checks whether the
 appropriate `https://` URL is also available. It replaces these URLs, if

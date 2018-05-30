@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# TODO Re-factor into scs.checker.sig (along with scs.checker.http)
-# TODO Re-use scs.https?
+# TODO Re-factor into sc.checker.sig (along with sc.checker.http)
+# TODO Re-use sc.https?
 # TODO Check whether URL is a signature itself, so looking for sig makes no sense
 
 import requests

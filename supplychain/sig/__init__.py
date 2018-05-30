@@ -13,6 +13,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from scs.https.checker import Checker
-from scs.https.replacer import replaceHttp
+from supplychain.sig.checker import Checker
 

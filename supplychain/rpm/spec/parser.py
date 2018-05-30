@@ -17,7 +17,7 @@ import subprocess
 import sys
 import re
 
-from rpm.exceptions import Error
+from supplychain.rpm.exceptions import Error
 
 # TODO Get rid of rpmspec requirement, parse them manually
 

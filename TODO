@@ -1,6 +1,6 @@
 - Testing: Add test suite / infrastructure with pytest
 - More structure with classes / libraries
 - https:// check for sources and URL, etc.
-- scs-https-replace
-- scs-https-check
-- scs-spec -> Spec file analyzer
+- sc-https-replace
+- sc-https-check
+- sc-spec -> Spec file analyzer

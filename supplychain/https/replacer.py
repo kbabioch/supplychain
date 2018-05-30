@@ -13,13 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import scs.https.checker
+import supplychain.https.checker
 import re
 
 # Replaces http:// by https:// when available
 def callbackHttpUrl(match):
   url = match.group(0)
-  checker = scs.https.Checker(url)
+  checker = supplychain.https.Checker(url)
   availableHttp = checker.isAvailableHttp()
   availableHttps = checker.isAvailableHttps()
 
