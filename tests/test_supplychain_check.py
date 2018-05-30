@@ -2,6 +2,8 @@ import supplychain.check.url
 import supplychain.hardening.replacer
 import pytest
 
+# TODO: Start webserver within Python instead of relying outside connectivity
+
 availableUrlHttp = 'http://babioch.de'
 availableUrlHttps = 'https://babioch.de'
 
