@@ -2,7 +2,6 @@
 
 [![Build status](https://travis-ci.org/kbabioch/supplychain?branch=master)](https://travis-ci.org/kbabioch/supplychain)
 [![Code coverage](https://codecov.io/gh/kbabioch/supplychain/branch/master/graph/badge.svg)](https://codecov.io/gh/kbabioch/supplychain)
-[![Coverity scan](https://scan.coverity.com/projects/15865/badge.svg)](https://scan.coverity.com/projects/kbabioch-supply-chain-security)
 
 This repository contains a set of tools and scripts to analyze and improve the
 supply chain security around RPM files and the Open Build Service (OBS). This
