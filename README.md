@@ -1,6 +1,6 @@
 # SUPPLY CHAIN SECURITY
 
-[![Build status](https://travis-ci.org/kbabioch/supplychain?branch=master)](https://travis-ci.org/kbabioch/supplychain)
+[![Build status](https://travis-ci.org/kbabioch/supplychain.svg?branch=master)](https://travis-ci.org/kbabioch/supplychain)
 [![Code coverage](https://codecov.io/gh/kbabioch/supplychain/branch/master/graph/badge.svg)](https://codecov.io/gh/kbabioch/supplychain)
 
 This repository contains a set of tools and scripts to analyze and improve the
