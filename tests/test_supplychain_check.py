@@ -45,16 +45,16 @@ class TestSupplychainCheckURL:
 
 class TestSupplychainCheckSignature:
 
-  def test_isAvailableSig(self):
+  def test_isSignatureFileAvailable(self):
     checker = supplychain.check.signature.Signature(fileUrl)
-    assert checker.isAvailableSig()
+    assert checker.isSignatureFileAvailable()
 
   def test_isNotAvailableSignature(self):
     checker = supplychain.check.signature.Signature(unavailableUrl)
-    assert not checker.isAvailableSig()
+    assert not checker.isSignatureFileAvailable()
 
   def test_getSignedUrl(self):
     checker = supplychain.check.signature.Signature(fileUrl)
-    assert checker.isAvailableSig()
-    assert checker.getSignedUrl() == fileUrlSignature
+    assert checker.isSignatureFileAvailable()
+    assert checker.getSignatureFileURL() == fileUrlSignature
 

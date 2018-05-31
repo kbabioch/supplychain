@@ -18,26 +18,23 @@
 # TODO Check whether URL is a signature itself, so looking for sig makes no sense
 
 import requests
+import supplychain.check.url
 
 class Signature:
 
   def __init__(self, url):
     self.url = url
-    self.signedUrl = ''
+    self.signatureFileURL = ''
 
-  def isAvailableSig(self):
+  def isSignatureFileAvailable(self):
     exts = ['asc', 'sig']
     for ext in exts:
-      try:
-        signedUrl = self.url + '.' + ext
-        request = requests.get(signedUrl)
-        if request.status_code == requests.status_codes.codes.OK:
-          self.signedUrl = signedUrl
-          return True
-      except requests.exceptions.RequestException:
-        pass
+      signatureFileURL = self.url + '.' + ext
+      if supplychain.check.url.isAvailable(signatureFileURL):
+        self.signatureFileURL = signatureFileURL
+        return True
     return False
 
-  def getSignedUrl(self):
-    return self.signedUrl
+  def getSignatureFileURL(self):
+    return self.signatureFileURL
 
