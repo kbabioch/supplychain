@@ -24,10 +24,8 @@ def callbackHttpUrl(match):
   checker = supplychain.check.url.URL(url)
   availableHttp = checker.isAvailableHttp()
   availableHttps = checker.isAvailableHttps()
-
   if availableHttp and availableHttps:
     return checker.getHttps()
-
   return checker.getHttp()
 
 def replaceHttp(input):
