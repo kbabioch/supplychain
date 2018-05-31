@@ -5,32 +5,33 @@
 
 This repository contains a set of tools and scripts to analyze and improve the
 supply chain security around RPM files and the Open Build Service (OBS). This
-can be helpful in identifying potentials to improve on security, e.g.:
+can be helpful in identifying potentials to improve on security, e.g. by:
 
-- Scan for unused signature files, that are available upstream, but not used
-  during the build process to verify the authenticity of the sources
-- Use of unencrypted transfer channels, e.g. using `http://`,
+- Scanning for unused signature files, that are available upstream, but not
+  yet used during the build process to verify the authenticity of the sources
+- Looking for usage of unencrypted transfer channels, e.g. using `http://`,
   although `https://` is available
 
-It also contains tools to quickly create keyrings, required for verification of
-signed source files.
+It also contains tools to quickly create keyrings, required for verification
+of authenticity for signed source files.
 
 ## TOOLS
 
 ### sc-keyring
 
 This script will extract the OpenPGP key IDs that were used to sign the
-provided files and will try to retrieve them using public keyservers.
-It minimizes these keys and exports the whole keyring to a file. The
-resulting keyring file can be used to verify all available sources, e.g.
-within a RPM spec file.
+provided file(s) and will try to retrieve them using public keyservers. It
+minimizes these keys and exports the whole keyring to a file. The resulting
+keyring file can be used to verify all available sources, e.g. within a RPM
+spec file.
 
 ### sc-https-replace
 
 This script scans the input for any `http://` URLs, and checks whether the
-appropriate `https://` URL is also available. It replaces these URLs, if
-applicable. Optionally, it can also check whether the returned resource is
-actually the same.
+appropriate `https://` URL is also available. In such a case, it replaces
+the URLs transparently. Optionally, it can also take into account whether
+the returned resources are actually the same, although this requires to
+completely retrieve the URL.
 
 ## LICENSE
 
