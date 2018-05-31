@@ -30,6 +30,7 @@ class parser:
         rpmspec = '/usr/bin/rpmspec'
 
         try:
+            # TODO Exception handling in decode
             self.__output = subprocess.check_output([rpmspec, '-P', rpmfile]).decode(sys.stdout.encoding)
 
         except FileNotFoundError:
