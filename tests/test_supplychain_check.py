@@ -2,7 +2,7 @@ import supplychain.check.url
 import supplychain.hardening.replacer
 import pytest
 
-# TODO: Start webserver within Python instead of relying outside connectivity
+# TODO: Start webserver within Python instead of relying outside connectivity, since currently these tests require an active Internet connection
 
 availableUrlHttp = 'http://babioch.de'
 availableUrlHttps = 'https://babioch.de'
@@ -13,28 +13,27 @@ fileUrlSignature = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2.s
 class TestSupplychainCheckURL:
 
   def test_isAvailable(self):
-    # Implicit check of network connectivity
     assert supplychain.check.url.isAvailable(availableUrlHttp)
  
   def test_isUnavailable(self):
     assert not supplychain.check.url.isAvailable(unavailableUrl)
 
-  def test_urlChecker(self):
+  def test_HttpAndHttpsAvailable(self):
     checker = supplychain.check.url.URL(availableUrlHttp)
-    assert True == checker.isAvailableHttp()
-    assert True == checker.isAvailableHttps()
+    assert checker.isAvailableHttp()
+    assert checker.isAvailableHttps()
     assert checker.getHttp() == availableUrlHttp
     assert checker.getHttps() == availableUrlHttps
 
   def test_isHttp(self):
     checker = supplychain.check.url.URL(availableUrlHttp)
-    assert True == checker.isHttp()
-    assert False == checker.isHttps()
+    assert checker.isHttp()
+    assert not checker.isHttps()
 
   def test_isHttps(self):
     checker = supplychain.check.url.URL(availableUrlHttps)
-    assert False == checker.isHttp()
-    assert True == checker.isHttps()
+    assert not checker.isHttp()
+    assert checker.isHttps()
 
   def test_invalidURL(self):
     with pytest.raises(ValueError):
@@ -48,14 +47,14 @@ class TestSupplychainCheckSignature:
 
   def test_isAvailableSig(self):
     checker = supplychain.check.signature.Signature(fileUrl)
-    assert True == checker.isAvailableSig()
+    assert checker.isAvailableSig()
 
   def test_isNotAvailableSignature(self):
     checker = supplychain.check.signature.Signature(unavailableUrl)
-    assert False == checker.isAvailableSig()
+    assert not checker.isAvailableSig()
 
   def test_getSignedUrl(self):
     checker = supplychain.check.signature.Signature(fileUrl)
-    assert True == checker.isAvailableSig()
+    assert checker.isAvailableSig()
     assert checker.getSignedUrl() == fileUrlSignature
 
