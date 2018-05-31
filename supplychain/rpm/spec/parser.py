@@ -36,7 +36,7 @@ class parser:
             raise Error('rpmspec binary not found')
 
         except subprocess.CalledProcessError:
-            raise Error('Invalid spec file')
+            raise Error('invalid spec file')
 
     # TODO Define datatype (named tuple?) which will be returned here
     def get_sources(self):
