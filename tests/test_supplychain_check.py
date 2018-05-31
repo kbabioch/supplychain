@@ -8,7 +8,7 @@ availableUrlHttp = 'http://babioch.de'
 availableUrlHttps = 'https://babioch.de'
 unavailableUrl = 'http://nonexisting.babioch.de'
 fileUrl = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2'
-fileUrlSignature = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2.asc'
+fileUrlSignature = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2.sig'
 
 class TestSupplychainCheckURL:
 
