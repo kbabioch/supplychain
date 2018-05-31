@@ -13,7 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import mock
+import subprocess
 import supplychain.rpm.spec
+import supplychain.rpm.exceptions
 import pytest
 
 class TestSupplychainRPM:
@@ -25,4 +28,10 @@ class TestSupplychainRPM:
   def test_getSources(self):
     p = supplychain.rpm.spec.parser('tests/specfiles/llvm.spec')
     assert p.get_sources() == [('0', 'README.packaging'), ('101', 'baselibs.conf')]
+
+  @mock.patch('subprocess.check_output')
+  def test_FileNotFound(self, m):
+    m.side_effect = supplychain.rpm.exceptions.Error()
+    with pytest.raises(supplychain.rpm.exceptions.Error):
+      subprocess.check_output()
 
