@@ -48,7 +48,14 @@ class Parser:
 		for line in self.__output.splitlines():
 			m = re.match(regexp, line)
 			if m:
-				sources.append(Source(m.group(1), m.group(2)))
+				index = m.group('index')
+				source = m.group('source')
+				if index:
+					index = int(index)
+				else:
+					index = None
+				sources.append(Source(index, source))
+
 		return sources
 
 class Source:
