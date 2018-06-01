@@ -54,9 +54,13 @@ for source in sources:
 
     signatureChecker = supplychain.check.SignatureFileChecker(sourceUrl)
     if signatureChecker.getSignatureFileUrls():
-        signatureFileUrl = signatureChecker.getSignatureFileUrls()[0] # TODO Also check other elements in this list
-        if not isUrlInSources(signatureFileUrl[0], sources):
-            print('Unused signature file found: {}'.format(signatureFileUrl))
+        signatureFileUrls = signatureChecker.getSignatureFileUrls()
+        sourceSignatureFile = False
+        for signatureFileUrl in signatureFileUrls:
+            if isUrlInSources(signatureFileUrl, sources):
+                sourceSignatureFile = True
+        if not sourceSignatureFile:
+            print('Unused signature file(s) found for: {}'.format(signatureFileUrl))
 
 with open(args.file) as f:
     for line in f.readlines():
