@@ -1,0 +1,70 @@
+#! /usr/bin/env python3
+#
+# Copyright (c) 2018 Karol Babioch <kbabioch@suse.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import re
+import subprocess
+
+import argparse
+import sys
+import supplychain.rpm.spec
+import supplychain.check
+import supplychain.hardening.replacer
+
+# Argument parser
+def parse_args(args):
+    parser = argparse.ArgumentParser(description='Analyzes RPM file(s) for potential of hardening the supply chain')
+    parser.add_argument('file', metavar='SPECFILE', help='Spec file to analyze', type=str)
+    return parser.parse_args(args)
+
+args = parse_args(sys.argv[1:])
+
+p = supplychain.rpm.spec.parser(args.file)
+sources = p.get_sources()
+
+def isUrlInSources(url, sources):
+    for source in sources:
+        if url == source[1]:
+            return True
+    return False
+
+for source in sources:
+    sourceUrl = source[1]
+
+    try:
+        urlChecker = supplychain.check.url.URL(sourceUrl)
+        if urlChecker.isHttp() and urlChecker.isAvailableHttps():
+            print('Upgradable source URL found: {}'.format(urlChecker.getHttps()))
+    except ValueError:
+        # Ignore local files, etc.
+        pass
+
+    signatureChecker = supplychain.check.signature.Signature(sourceUrl)
+    if signatureChecker.isSignatureFileAvailable():
+        signatureFileUrl = signatureChecker.getSignatureFileURL()
+        if not isUrlInSources(signatureFileUrl, sources):
+            print('Unused signature file found: {}'.format(signatureFileUrl))
+
+with open(args.file) as f:
+    for line in f.readlines():
+        urls = re.findall(r'http://[^\s]+', line)
+        for url in urls:
+            if url in ['http://bugs.opensuse.org/']:
+                continue
+            if supplychain.check.url.URL(url).isAvailableHttps():
+                print('Upgradable URL found: {}'.format(url))
+
