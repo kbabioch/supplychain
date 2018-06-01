@@ -1,0 +1,86 @@
+#! /usr/bin/env python3
+#
+# Copyright (c) 2018 Karol Babioch <kbabioch@suse.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import re
+
+import argparse
+import sys
+import supplychain.rpmspec
+import supplychain.check
+
+# Argument parser
+def parse_args(args):
+    parser = argparse.ArgumentParser(description='Analyzes RPM file(s) for potential of hardening the supply chain')
+    parser.add_argument('file', metavar='SPECFILE', help='Spec file to analyze', type=str)
+    return parser.parse_args(args)
+
+args = parse_args(sys.argv[1:])
+
+class RPMFile:
+
+    # TODO File handler to not open file multiple times
+    # TODO Implement as context manager?
+    # TODO Exception when no sources are in spec file?
+    # TODO Race condition between read / write?
+
+    def __init__(self, specfile):
+        self.specfile = specfile
+        self.maxIndex = ''
+        self.lastSourceLine = 0
+        with open(specfile) as f:
+            self.content = f.readlines()
+            f.close()
+        self.analyze()
+
+    def analyze(self):
+        currentLine = 0
+        for line in self.content:
+            m = re.match('^Source(\d*):', line)
+            if m:
+                index = m.group(1)
+                if index != '' and index > self.maxIndex:
+                    self.maxIndex = index
+                self.lastSourceLine = currentLine
+            currentLine += 1
+
+    def addSource(self, url):
+        if self.maxIndex == '':
+            newIndex = 1
+        else:
+            newIndex = int(self.maxIndex) + 1
+
+        newSourceLine = self.lastSourceLine + 1
+        self.content.insert(newSourceLine, 'Source{}:\t{}{}'.format(newIndex, url, os.linesep))
+        self.maxIndex = newIndex
+        self.lastSourceLine = newSourceLine
+
+    def write(self):
+        with open(self.specfile, 'w') as f:
+            f.writelines(self.content)
+            f.close()
+
+r = RPMFile(args.file)
+p = supplychain.rpmspec.Parser(args.file)
+sources = p.get_sources()
+
+for source in sources:
+  checker = supplychain.check.SignatureCheck(source.source)
+  if checker.isSignatureFileAvailable():
+    r.addSource(checker.getSignatureFileURL())
+r.write()
+
