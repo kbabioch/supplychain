@@ -53,12 +53,15 @@ class Parser:
 
 class Source:
 
-    def __init__(self, index, source):
-        self.index = index
-        self.source = source
+	def __init__(self, index, source):
+		self.index = index
+		self.source = source
 
-    def __str__(self):
-        print('Source{}: {}'.format(self.index, self.source))
+	def __str__(self):
+		print('Source{}: {}'.format(self.index, self.source))
+
+	def __eq__(self, other):
+		return self.index == other.index and self.source == other.source
 
 class Editor:
 
