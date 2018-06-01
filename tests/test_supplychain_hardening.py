@@ -21,15 +21,20 @@ availableUrlHttps = 'https://babioch.de'
 
 unavailableUrl = 'http://nonexisting.babioch.de'
 
+# TODO Setup object only once
+
 class TestSupplychainHardening:
 
   def test_replaceHttp(self):
-    assert supplychain.hardening.replacer.replaceHttp(availableUrlHttp) == availableUrlHttps
+    h = supplychain.hardening.replacer.Http()
+    assert h.replace(availableUrlHttp) == availableUrlHttps
 
   def test_replaceHttpNotAvailable(self):
-    assert supplychain.hardening.replacer.replaceHttp(unavailableUrl) == unavailableUrl
+    h = supplychain.hardening.replacer.Http()
+    assert h.replace(unavailableUrl) == unavailableUrl
 
   def test_replaceHttpInText(self):
+    h = supplychain.hardening.replacer.Http()
     s = 'This is a text containing multiple HTTP URLs: ' + availableUrlHttp + ' , ' + availableUrlHttp + ' . It also contains a HTTPS URL: ' + availableUrlHttps
-    assert supplychain.hardening.replacer.replaceHttp(s) == s.replace('http://', 'https://')
+    assert h.replace(s) == s.replace('http://', 'https://')
 

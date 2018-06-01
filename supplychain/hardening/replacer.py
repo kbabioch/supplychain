@@ -13,21 +13,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# TODO Add list of URLs that should not be replaced
-
 import supplychain.check.url
 import re
 
-# Replaces http:// by https:// when available
-def callbackHttpUrl(match):
-  url = match.group(0)
-  checker = supplychain.check.url.URL(url)
-  availableHttp = checker.isAvailableHttp()
-  availableHttps = checker.isAvailableHttps()
-  if availableHttp and availableHttps:
-    return checker.getHttps()
-  return checker.getHttp()
+class Http:
 
-def replaceHttp(input):
-  return re.sub('http://[^\s]+', callbackHttpUrl, input)
+  def __init__(self):
+    self.ignoreUrls = []
+
+  def addIgnoreUrl(self, url):
+    self.ignoreUrls.append(url)
+
+  def replace(self, input):
+    return re.sub('http://[^\s]+', self.callbackHttpUrl, input)
+
+  def callbackHttpUrl(self, match):
+    url = match.group(0)
+    if url not in self.ignoreUrls:
+      return self.replaceHttpUrlWhenAvailable(url)
+    return url
+
+  # Replaces http:// by https:// when available
+  def replaceHttpUrlWhenAvailable(self, url):
+    checker = supplychain.check.url.URL(url)
+    availableHttp = checker.isAvailableHttp()
+    availableHttps = checker.isAvailableHttps()
+    if availableHttp and availableHttps:
+      return checker.getHttps()
+    return url
 

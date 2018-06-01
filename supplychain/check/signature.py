@@ -22,14 +22,15 @@ import supplychain.check.url
 
 class Signature:
 
+  EXTENSIONS = ['asc', 'sig']
+
   def __init__(self, url):
     self.url = url
-    self.signatureFileURL = ''
+    self.signatureFileURL = False
 
   def isSignatureFileAvailable(self):
-    exts = ['asc', 'sig']
-    for ext in exts:
-      signatureFileURL = self.url + '.' + ext
+    for ext in self.EXTENSIONS:
+      signatureFileURL = '{}.{}'.format(self.url, ext)
       if supplychain.check.url.isAvailable(signatureFileURL):
         self.signatureFileURL = signatureFileURL
         return True
