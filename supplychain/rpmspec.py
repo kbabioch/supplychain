@@ -17,11 +17,12 @@ import subprocess
 import sys
 import re
 
-from supplychain.rpm.exceptions import Error
+class Error(Exception):
+    pass
 
 # TODO Get rid of rpmspec requirement, parse them manually
 
-class parser:
+class Parser:
 
     def __init__(self, rpmfile):
 
@@ -46,3 +47,13 @@ class parser:
         sources = re.findall(regexp, self.__output)
 
         return sources
+
+class Source:
+
+    def __init__(self, index, url):
+        self.index = index
+        self.url = url
+
+    def __str__(self):
+        print('Source{}: {}'.format(self.index, self.url))
+

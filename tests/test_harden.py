@@ -13,8 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import supplychain.check.url
-import supplychain.hardening.replacer
+import supplychain.harden
 
 availableUrlHttp = 'http://babioch.de'
 availableUrlHttps = 'https://babioch.de'
@@ -23,18 +22,18 @@ unavailableUrl = 'http://nonexisting.babioch.de'
 
 # TODO Setup object only once
 
-class TestSupplychainHardening:
+class TestHttpReplacer:
 
   def test_replaceHttp(self):
-    h = supplychain.hardening.replacer.Http()
+    h = supplychain.harden.HttpReplacer()
     assert h.replace(availableUrlHttp) == availableUrlHttps
 
   def test_replaceHttpNotAvailable(self):
-    h = supplychain.hardening.replacer.Http()
+    h = supplychain.harden.HttpReplacer()
     assert h.replace(unavailableUrl) == unavailableUrl
 
   def test_replaceHttpInText(self):
-    h = supplychain.hardening.replacer.Http()
+    h = supplychain.harden.HttpReplacer()
     s = 'This is a text containing multiple HTTP URLs: ' + availableUrlHttp + ' , ' + availableUrlHttp + ' . It also contains a HTTPS URL: ' + availableUrlHttps
     assert h.replace(s) == s.replace('http://', 'https://')
 

@@ -13,8 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import supplychain.check.url
-import supplychain.hardening.replacer
+from supplychain.check import URLCheck, SignatureCheck
 import pytest
 
 # TODO: Start webserver within Python instead of relying outside connectivity, since currently these tests require an active Internet connection
@@ -25,55 +24,55 @@ unavailableUrl = 'http://nonexisting.babioch.de'
 fileUrl = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2'
 fileUrlSignature = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2.sig'
 
-class TestSupplychainCheckURL:
+class TestURLCheck:
 
   def test_isAvailable(self):
-    assert supplychain.check.url.isAvailable(availableUrlHttp)
+    assert URLCheck.isAvailable(availableUrlHttp)
  
   def test_isUnavailable(self):
-    assert not supplychain.check.url.isAvailable(unavailableUrl)
+    assert not URLCheck.isAvailable(unavailableUrl)
 
   def test_HttpAndHttpsAvailable(self):
-    checker = supplychain.check.url.URL(availableUrlHttp)
+    checker = URLCheck(availableUrlHttp)
     assert checker.isAvailableHttp()
     assert checker.isAvailableHttps()
     assert checker.getHttp() == availableUrlHttp
     assert checker.getHttps() == availableUrlHttps
 
   def test_isHttp(self):
-    checker = supplychain.check.url.URL(availableUrlHttp)
+    checker = URLCheck(availableUrlHttp)
     assert checker.isHttp()
     assert not checker.isHttps()
 
   def test_isHttps(self):
-    checker = supplychain.check.url.URL(availableUrlHttps)
+    checker = URLCheck(availableUrlHttps)
     assert not checker.isHttp()
     assert checker.isHttps()
 
   def test_invalidURL(self):
     with pytest.raises(ValueError):
-      supplychain.check.url.URL('http://[')
+      URLCheck('http://[')
 
   def test_invalidURLScheme(self):
     with pytest.raises(ValueError):
-      supplychain.check.url.URL('ftp://')
+      URLCheck('ftp://')
 
   def test_emptyURLScheme(self):
     with pytest.raises(ValueError):
-      supplychain.check.url.URL('file')
+      URLCheck('file')
 
-class TestSupplychainCheckSignature:
+class TestSignatureCheck:
 
   def test_isSignatureFileAvailable(self):
-    checker = supplychain.check.signature.Signature(fileUrl)
+    checker = SignatureCheck(fileUrl)
     assert checker.isSignatureFileAvailable()
 
   def test_isNotAvailableSignature(self):
-    checker = supplychain.check.signature.Signature(unavailableUrl)
+    checker = SignatureCheck(unavailableUrl)
     assert not checker.isSignatureFileAvailable()
 
   def test_getSignedUrl(self):
-    checker = supplychain.check.signature.Signature(fileUrl)
+    checker = SignatureCheck(fileUrl)
     assert checker.isSignatureFileAvailable()
     assert checker.getSignatureFileURL() == fileUrlSignature
 

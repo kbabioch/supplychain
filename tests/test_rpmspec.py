@@ -12,3 +12,28 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import mock
+import subprocess
+import supplychain.rpmspec
+import pytest
+
+class TestParser:
+
+  def test_invalidSpecFile(self):
+    with pytest.raises(supplychain.rpmspec.Error):
+      supplychain.rpmspec.Parser('/dev/null')
+
+  def test_getSources(self):
+    p = supplychain.rpmspec.Parser('tests/specfiles/llvm.spec')
+    assert p.get_sources() == [('0', 'README.packaging'), ('101', 'baselibs.conf')]
+
+  @mock.patch('subprocess.check_output')
+  def test_FileNotFound(self, m):
+    m.side_effect = supplychain.rpmspec.Error()
+    with pytest.raises(supplychain.rpmspec.Error):
+      subprocess.check_output()
+
+class TestSource:
+  pass
+

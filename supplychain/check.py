@@ -14,22 +14,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # TODO Implement checkContent
-# TODO Ignore body? HEAD cannot be used, since it yields different results? http://heise.de -> 30
+# TODO Ignore body? HEAD cannot be used, since it yields different results? http://heise.de -> 301
 # TODO Take 301 redirection,etc. into consideration
 
 import requests
 from urllib.parse import urlparse, urlunparse
 
-def isAvailable(url):
-  try:
-    request = requests.get(url)
-    if request.status_code == requests.status_codes.codes.OK:
-      return True
-  except requests.exceptions.RequestException:
-    pass
-  return False
+class URLCheck:
 
-class URL:
+  @staticmethod
+  def isAvailable(url):
+    try:
+      request = requests.get(url)
+      if request.status_code == requests.status_codes.codes.OK:
+        return True
+    except requests.exceptions.RequestException:
+      pass
+    return False
 
   def __init__(self, url, checkContent = False):
     try:
@@ -47,10 +48,10 @@ class URL:
     return self.url.scheme == 'https'
 
   def isAvailableHttp(self):
-    return isAvailable(self.getHttp())
+    return URLCheck.isAvailable(self.getHttp())
 
   def isAvailableHttps(self):
-    return isAvailable(self.getHttps())
+    return URLCheck.isAvailable(self.getHttps())
 
   def getHttp(self):
     u = list(self.url)
@@ -61,4 +62,23 @@ class URL:
     u = list(self.url)
     u[0] = 'https'
     return urlunparse(u)
+
+class SignatureCheck:
+
+  EXTENSIONS = ['asc', 'sig']
+
+  def __init__(self, url):
+    self.url = url
+    self.signatureFileURL = False
+
+  def isSignatureFileAvailable(self):
+    for ext in self.EXTENSIONS:
+      signatureFileURL = '{}.{}'.format(self.url, ext)
+      if URLCheck.isAvailable(signatureFileURL):
+        self.signatureFileURL = signatureFileURL
+        return True
+    return False
+
+  def getSignatureFileURL(self):
+    return self.signatureFileURL
 

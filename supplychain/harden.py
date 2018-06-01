@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import supplychain.check.url
+import supplychain.check
 import re
 
-class Http:
+class HttpReplacer:
 
   def __init__(self):
     self.ignoreUrls = []
@@ -35,7 +35,7 @@ class Http:
 
   # Replaces http:// by https:// when available
   def replaceHttpUrlWhenAvailable(self, url):
-    checker = supplychain.check.url.URL(url)
+    checker = supplychain.check.URLCheck(url)
     availableHttp = checker.isAvailableHttp()
     availableHttps = checker.isAvailableHttps()
     if availableHttp and availableHttps:

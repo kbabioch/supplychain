@@ -20,7 +20,7 @@ import errno
 import shutil
 import sys
 import tempfile
-from supplychain.util.gpg.keyring import Keyring
+from supplychain.keyring import Keyring
 
 # TODO Check whether keyring already exists (-f parameter to force overwrite)
 # TODO Make more generic, so it can also import into default keyring
