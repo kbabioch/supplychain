@@ -22,7 +22,7 @@ import subprocess
 import argparse
 import sys
 import supplychain.rpmspec
-from supplychain.check import URLCheck, SignatureCheck
+from supplychain.check import UrlChecker, SignatureFileChecker
 
 # Argument parser
 def parse_args(args):
@@ -45,17 +45,17 @@ for source in sources:
     sourceUrl = source.source
 
     try:
-        urlChecker = supplychain.check.URLCheck(sourceUrl)
+        urlChecker = supplychain.check.UrlChecker(sourceUrl)
         if urlChecker.isHttp() and urlChecker.isAvailableHttps():
             print('Upgradable source URL found: {}'.format(urlChecker.getHttps()))
     except ValueError:
         # Ignore local files, etc.
         pass
 
-    signatureChecker = supplychain.check.SignatureCheck(sourceUrl)
-    if signatureChecker.isSignatureFileAvailable():
-        signatureFileUrl = signatureChecker.getSignatureFileURL()
-        if not isUrlInSources(signatureFileUrl, sources):
+    signatureChecker = supplychain.check.SignatureFileChecker(sourceUrl)
+    if signatureChecker.getSignatureFileUrls():
+        signatureFileUrl = signatureChecker.getSignatureFileUrls()[0] # TODO Also check other elements in this list
+        if not isUrlInSources(signatureFileUrl[0], sources):
             print('Unused signature file found: {}'.format(signatureFileUrl))
 
 with open(args.file) as f:
@@ -64,6 +64,6 @@ with open(args.file) as f:
         for url in urls:
             if url in ['http://bugs.opensuse.org/']:
                 continue
-            if supplychain.check.URLCheck(url).isAvailableHttps():
+            if supplychain.check.UrlChecker(url).isAvailableHttps():
                 print('Upgradable URL found: {}'.format(url))
 

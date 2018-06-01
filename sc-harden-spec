@@ -79,8 +79,8 @@ p = supplychain.rpmspec.Parser(args.file)
 sources = p.get_sources()
 
 for source in sources:
-  checker = supplychain.check.SignatureCheck(source.source)
-  if checker.isSignatureFileAvailable():
-    r.addSource(checker.getSignatureFileURL())
+  checker = supplychain.check.SignatureFileChecker(source.source)
+  if checker.getSignatureFileUrls():
+    r.addSource(checker.getSignatureFileUrls()[0])
 r.write()
 

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from supplychain.check import URLCheck, SignatureCheck
+from supplychain.check import UrlChecker, SignatureFileChecker
 import pytest
 
 # TODO: Start webserver within Python instead of relying outside connectivity, since currently these tests require an active Internet connection
@@ -24,55 +24,54 @@ unavailableUrl = 'http://nonexisting.babioch.de'
 fileUrl = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2'
 fileUrlSignature = 'https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.7.tar.bz2.sig'
 
-class TestURLCheck:
+class TestUrlChecker:
 
   def test_isAvailable(self):
-    assert URLCheck.isAvailable(availableUrlHttp)
+    assert UrlChecker.isAvailable(availableUrlHttp)
  
   def test_isUnavailable(self):
-    assert not URLCheck.isAvailable(unavailableUrl)
+    assert not UrlChecker.isAvailable(unavailableUrl)
 
   def test_HttpAndHttpsAvailable(self):
-    checker = URLCheck(availableUrlHttp)
+    checker = UrlChecker(availableUrlHttp)
     assert checker.isAvailableHttp()
     assert checker.isAvailableHttps()
     assert checker.getHttp() == availableUrlHttp
     assert checker.getHttps() == availableUrlHttps
 
   def test_isHttp(self):
-    checker = URLCheck(availableUrlHttp)
+    checker = UrlChecker(availableUrlHttp)
     assert checker.isHttp()
     assert not checker.isHttps()
 
   def test_isHttps(self):
-    checker = URLCheck(availableUrlHttps)
+    checker = UrlChecker(availableUrlHttps)
     assert not checker.isHttp()
     assert checker.isHttps()
 
-  def test_invalidURL(self):
+  def test_invalidUrl(self):
     with pytest.raises(ValueError):
-      URLCheck('http://[')
+      UrlChecker('http://[')
 
-  def test_invalidURLScheme(self):
+  def test_invalidUrl(self):
     with pytest.raises(ValueError):
-      URLCheck('ftp://')
+      UrlChecker('ftp://')
 
-  def test_emptyURLScheme(self):
+  def test_emptyUrl(self):
     with pytest.raises(ValueError):
-      URLCheck('file')
+      UrlChecker('file')
 
-class TestSignatureCheck:
+class TestSignatureFileChecker:
 
-  def test_isSignatureFileAvailable(self):
-    checker = SignatureCheck(fileUrl)
-    assert checker.isSignatureFileAvailable()
+  def test_signatureFileAvailable(self):
+    checker = SignatureFileChecker(fileUrl)
+    assert checker.getSignatureFileUrls()
 
-  def test_isNotAvailableSignature(self):
-    checker = SignatureCheck(unavailableUrl)
-    assert not checker.isSignatureFileAvailable()
+  def test_signatureFileNotAvailable(self):
+    checker = SignatureFileChecker(unavailableUrl)
+    assert not checker.getSignatureFileUrls()
 
-  def test_getSignedUrl(self):
-    checker = SignatureCheck(fileUrl)
-    assert checker.isSignatureFileAvailable()
-    assert checker.getSignatureFileURL() == fileUrlSignature
+  def test_getSignatureFileUrls(self):
+    checker = SignatureFileChecker(fileUrl)
+    assert fileUrlSignature in checker.getSignatureFileUrls()
 

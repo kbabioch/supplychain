@@ -20,7 +20,7 @@
 import requests
 from urllib.parse import urlparse, urlunparse
 
-class URLCheck:
+class UrlChecker:
 
   @staticmethod
   def isAvailable(url):
@@ -48,10 +48,10 @@ class URLCheck:
     return self.url.scheme == 'https'
 
   def isAvailableHttp(self):
-    return URLCheck.isAvailable(self.getHttp())
+    return UrlChecker.isAvailable(self.getHttp())
 
   def isAvailableHttps(self):
-    return URLCheck.isAvailable(self.getHttps())
+    return UrlChecker.isAvailable(self.getHttps())
 
   def getHttp(self):
     u = list(self.url)
@@ -63,22 +63,19 @@ class URLCheck:
     u[0] = 'https'
     return urlunparse(u)
 
-class SignatureCheck:
+class SignatureFileChecker:
 
-  EXTENSIONS = ['asc', 'sig']
+    EXTENSIONS = ['asc', 'sig']
 
-  def __init__(self, url):
-    self.url = url
-    self.signatureFileURL = False
+    def __init__(self, url):
+        self.url = url
+        self.signatureFileUrls = []
 
-  def isSignatureFileAvailable(self):
-    for ext in self.EXTENSIONS:
-      signatureFileURL = '{}.{}'.format(self.url, ext)
-      if URLCheck.isAvailable(signatureFileURL):
-        self.signatureFileURL = signatureFileURL
-        return True
-    return False
+        for ext in self.EXTENSIONS:
+            signatureFileUrl = '{}.{}'.format(self.url, ext)
+            if UrlChecker.isAvailable(signatureFileUrl):
+                self.signatureFileUrls.append(signatureFileUrl)
 
-  def getSignatureFileURL(self):
-    return self.signatureFileURL
+    def getSignatureFileUrls(self):
+        return self.signatureFileUrls
 

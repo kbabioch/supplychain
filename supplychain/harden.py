@@ -35,7 +35,7 @@ class HttpReplacer:
 
   # Replaces http:// by https:// when available
   def replaceHttpUrlWhenAvailable(self, url):
-    checker = supplychain.check.URLCheck(url)
+    checker = supplychain.check.UrlChecker(url)
     availableHttp = checker.isAvailableHttp()
     availableHttps = checker.isAvailableHttps()
     if availableHttp and availableHttps:
