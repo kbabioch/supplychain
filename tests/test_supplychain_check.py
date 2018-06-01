@@ -58,6 +58,10 @@ class TestSupplychainCheckURL:
     with pytest.raises(ValueError):
       supplychain.check.url.URL('ftp://')
 
+  def test_emptyURLScheme(self):
+    with pytest.raises(ValueError):
+      supplychain.check.url.URL('file')
+
 class TestSupplychainCheckSignature:
 
   def test_isSignatureFileAvailable(self):
