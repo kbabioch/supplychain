@@ -60,3 +60,10 @@ class Source:
     def __str__(self):
         print('Source{}: {}'.format(self.index, self.source))
 
+class Editor:
+
+	def __init__(self, rpmfile):
+		self.rpmfile = rpmfile
+
+	def add_source(self, source):
+		pass # TODO Implement
