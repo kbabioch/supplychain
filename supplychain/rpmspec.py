@@ -24,36 +24,39 @@ class Error(Exception):
 
 class Parser:
 
-    def __init__(self, rpmfile):
+	def __init__(self, rpmfile):
 
-        # TODO Make this configurable
-        # Used to expand macros, etc.
-        rpmspec = '/usr/bin/rpmspec'
+		# TODO Make this configurable
+		# Used to expand macros, etc.
+		rpmspec = '/usr/bin/rpmspec'
 
-        try:
-            # TODO Exception handling in decode
-            self.__output = subprocess.check_output([rpmspec, '-P', rpmfile]).decode(sys.stdout.encoding)
+		try:
+			# TODO Exception handling in decode
+			self.__output = subprocess.check_output([rpmspec, '-P', rpmfile]).decode(sys.stdout.encoding)
+		
+		except FileNotFoundError:
+			raise Error('rpmspec binary not found')
 
-        except FileNotFoundError:
-            raise Error('rpmspec binary not found')
+		except subprocess.CalledProcessError:
+			raise Error('invalid spec file')
 
-        except subprocess.CalledProcessError:
-            raise Error('invalid spec file')
+	def get_sources(self):
 
-    # TODO Define datatype (named tuple?) which will be returned here
-    def get_sources(self):
+		sources = []
+		regexp = re.compile('^Source(?P<index>[0-9]*):\s*(?P<source>\S+)', re.MULTILINE)
 
-        regexp = re.compile('^Source(?P<index>[0-9]*):\s*(?P<source>\S+)', re.MULTILINE)
-        sources = re.findall(regexp, self.__output)
-
-        return sources
+		for line in self.__output.splitlines():
+			m = re.match(regexp, line)
+			if m:
+				sources.append(Source(m.group(1), m.group(2)))
+		return sources
 
 class Source:
 
-    def __init__(self, index, url):
+    def __init__(self, index, source):
         self.index = index
-        self.url = url
+        self.source = source
 
     def __str__(self):
-        print('Source{}: {}'.format(self.index, self.url))
+        print('Source{}: {}'.format(self.index, self.source))
 

@@ -26,7 +26,11 @@ class TestParser:
 
   def test_getSources(self):
     p = supplychain.rpmspec.Parser('tests/specfiles/llvm.spec')
-    assert p.get_sources() == [('0', 'README.packaging'), ('101', 'baselibs.conf')]
+    sources = p.get_sources()
+    assert sources[0].index == '0'
+    assert sources[0].source == 'README.packaging'
+    assert sources[1].index == '101'
+    assert sources[1].source == 'baselibs.conf'
 
   @mock.patch('subprocess.check_output')
   def test_FileNotFound(self, m):
