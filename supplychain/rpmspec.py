@@ -70,10 +70,27 @@ class Source:
 	def __eq__(self, other):
 		return self.index == other.index and self.source == other.source
 
+# TODO Don't open file in each function, pass handler, etc.
+# TODO Probably this should be implemented as context manager
 class Editor:
 
 	def __init__(self, rpmfile):
 		self.rpmfile = rpmfile
 
+	def get_last_source_line(self):
+		with open(self.rpmfile) as f:
+			current_line = 0
+			last_source_line = 0
+			for line in f:
+				current_line += 1
+				if re.match('^Source\d+:', line):
+					last_source_line = current_line
+			return last_source_line
+		# TODO What to return in the case file could not be opened?
+
 	def add_source(self, source):
-		pass # TODO Implement
+		with open(self.rpmfile) as f:
+			content = f.readlines()
+			content.insert(self.get_last_source_line(), source)
+			f.writelines(content)
+
