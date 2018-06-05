@@ -17,10 +17,15 @@ import subprocess
 import sys
 import re
 
+import tempfile
+import shutil
+import os
+
 class Error(Exception):
     pass
 
 # TODO Get rid of rpmspec requirement, parse them manually
+# TODO Consolidate regular expressions (different versions used throughout the file)
 
 class Parser:
 
@@ -70,27 +75,67 @@ class Source:
 	def __eq__(self, other):
 		return self.index == other.index and self.source == other.source
 
-# TODO Don't open file in each function, pass handler, etc.
 # TODO Probably this should be implemented as context manager
+# TODO Do changes only in memory and implement a save()/write() method
+# TODO Don't open files in each function, pass handler, etc.
+# TODO Think about race conditions, etc. (file locking?)
+# TODO Use functionality provided by Parser?
 class Editor:
 
 	def __init__(self, rpmfile):
 		self.rpmfile = rpmfile
+		self.last_source_line = 0
+		self.max_source_index = None
+		self.analyze()
+		# TODO Raise exception when no sources found? Which line to add sources? -> Invalid spec file?
 
-	def get_last_source_line(self):
+	# Looks for Source tags in specified rpmfile
+	def analyze(self):
 		with open(self.rpmfile) as f:
+
+			# Counting the current line that is being processed right now
 			current_line = 0
-			last_source_line = 0
-			for line in f:
-				current_line += 1
-				if re.match('^Source\d+:', line):
-					last_source_line = current_line
-			return last_source_line
-		# TODO What to return in the case file could not be opened?
 
+			# Iterate over file on a line by line basis
+			for line in f:
+
+				current_line += 1
+
+				# Check line for source tag (with or without index)
+				m = re.match('^Source(\d*):', line)
+
+				if m:
+					self.last_source_line = current_line
+					index = m.group(1)
+
+					# Skip on lines containing no index, i.e. `^Source:`
+					if index == '':
+						continue
+
+					# Check whether current index is the maximum one
+					index = int(index)
+					if (not self.max_source_index or index > self.max_source_index):
+						self.max_source_index = index
+
+	# Return the next free source index (max + 1)
+	# Might lead to fragmentation
+	def get_next_source_index(self):
+		if not self.max_source_index:
+			return 1
+		return self.max_source_index + 1
+
+	# Add new source right after the last one
 	def add_source(self, source):
-		with open(self.rpmfile) as f:
-			content = f.readlines()
-			content.insert(self.get_last_source_line(), source)
-			f.writelines(content)
+		with tempfile.NamedTemporaryFile('w', delete=False) as outfile:
+			with open(self.rpmfile) as infile:
+				current_line = 0
+				for line in infile:
+					current_line += 1
+					outfile.write(line)
+					if current_line == self.last_source_line:
+						self.last_source_line += 1
+						current_line += 1
+						source_index = self.get_next_source_index()
+						outfile.write('Source{}: {}{}'.format(self.max_source_index, source, + os.linesep))
+		shutil.move(outfile.name, self.rpmfile) # TODO Using os.replace() would be better (race condition, etc.)
 
