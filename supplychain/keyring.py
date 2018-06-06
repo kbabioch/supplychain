@@ -62,5 +62,5 @@ class Keyring:
 
     # String representation
     def __str__(self):
-        return 'homedir: {}, keyids: {}'.format(self.__homedir, self.__verbosity, self.__keyids)
+        return 'homedir: {}, keyids: {}'.format(self.__homedir, self.__keyids)
 
