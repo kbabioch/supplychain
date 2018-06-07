@@ -17,7 +17,28 @@
 
 from supplychain.keyring import Keyring
 
+import shutil
+import subprocess
+import tempfile
+import pytest
+
 class TestKeyring:
 
-	def test_whatever(self):
-		pass 
+	@pytest.fixture()
+	def init_keyring_homedir(self):
+		homedir = tempfile.mkdtemp()
+		keyring = Keyring(homedir)
+		yield keyring
+		try:
+			shutil.rmtree(homedir)
+		except OSError as e:
+			if e.errno != errno.ENOENT:
+				raise
+
+	def test_add_signature_file(self, init_keyring_homedir):
+		keyring = init_keyring_homedir
+		# Add file with valid OpenPGP signature
+		keyring.add_signature_file('tests/signed/COPYING.sig')
+		# Add file without signature
+		with pytest.raises(subprocess.CalledProcessError):
+			keyring.add_signature_file('COPYING')
