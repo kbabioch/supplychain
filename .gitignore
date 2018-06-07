@@ -1,12 +1,88 @@
-# Byte code
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
 
-# Unit test
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 .pytest_cache/
 
-# Coverage
-.coverage
+# Translations
+*.mo
+*.pot
 
-# ctags
-/tags
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VIM swap files
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+
+# VIM session file
+Session.vim
+
+# VIM temporary files
+.netrwhist
+*~
+
+# VIM persistent undo
+[._]*.un~
+
+# Ignore tags created by etags, ctags, gtags (GNU global) and cscope
+TAGS
+.TAGS
+!TAGS/
+tags
+.tags
+!tags/
+gtags.files
+GTAGS
+GRTAGS
+GPATH
+GSYMS
+cscope.files
+cscope.out
+cscope.in.out
+cscope.po.out

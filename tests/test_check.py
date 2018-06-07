@@ -53,11 +53,11 @@ class TestUrlChecker:
     with pytest.raises(ValueError):
       UrlChecker('http://[')
 
-  def test_invalidUrl(self):
+  def test_invalidUrlScheme(self):
     with pytest.raises(ValueError):
       UrlChecker('ftp://')
 
-  def test_emptyUrl(self):
+  def test_emptyUrlScheme(self):
     with pytest.raises(ValueError):
       UrlChecker('file')
 
