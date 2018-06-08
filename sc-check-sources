@@ -1,0 +1,31 @@
+#! /usr/bin/env python3
+
+from supplychain.rpmspec import Parser, Editor
+from supplychain.check import SignatureFileChecker
+
+file = 'tests/specfiles/dkgpg.spec'
+
+p = Parser(file)
+
+sources = []
+expanded_sources = []
+
+for source in p.get_sources():
+	sources.append(source['source'])
+	expanded_sources.append(p.expand(source['source']))
+
+for source in expanded_sources:
+	signature_files = SignatureFileChecker(source).getSignatureFileUrls()
+	if signature_files:
+		print('Signature file(s) found for: {}'.format(source))
+		already_verified = False
+		for signature_file in signature_files:
+			if signature_file in expanded_sources:
+				print('Signature file already using: {}'.format(signature_file))
+				already_verified = True
+				break
+		if not already_verified:
+			print('Unused signature file(s): {}'.format(signature_files))
+	else:
+		print('No signature file(s) found for: {}'.format(source))
+
