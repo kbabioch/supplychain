@@ -24,98 +24,55 @@ import os
 class Error(Exception):
     pass
 
-# TODO Get rid of rpmspec requirement, parse them manually
 # TODO Consolidate regular expressions (different versions used throughout the file)
 
 class Parser:
 
 	def __init__(self, rpmfile):
-
-		# TODO Make this configurable
-		# Used to expand macros, etc.
-		rpmspec = '/usr/bin/rpmspec'
-
-		try:
-			# TODO Exception handling in decode
-			self.__output = subprocess.check_output([rpmspec, '-P', rpmfile]).decode(sys.stdout.encoding)
-		
-		except FileNotFoundError:
-			raise Error('rpmspec binary not found')
-
-		except subprocess.CalledProcessError:
-			raise Error('invalid spec file')
+		self.rpmfile = rpmfile
 
 	def get_sources(self):
-
 		sources = []
-		regexp = re.compile('^Source(?P<index>[0-9]*):\s*(?P<source>\S+)', re.MULTILINE)
-
-		for line in self.__output.splitlines():
-			m = re.match(regexp, line)
-			if m:
-				index = m.group('index')
-				source = m.group('source')
-				if index:
-					index = int(index)
-				else:
-					index = None
-				sources.append(Source(index, source))
-
+		regexp = re.compile('^Source(?P<index>[0-9]*):\s*(?P<source>\S+)')
+		with open(self.rpmfile) as f:
+			current_line = 0
+			for line in f:
+				current_line += 1
+				m = re.match(regexp, line)
+				if m:
+					index = m.group('index')
+					source = m.group('source')
+					if index:
+						index = int(index)
+					else:
+						index = None
+					sources.append({ 'index': index, 'source': source, 'line': current_line })
 		return sources
 
-class Source:
-
-	def __init__(self, index, source):
-		self.index = index
-		self.source = source
-
-	def __str__(self):
-		print('Source{}: {}'.format(self.index, self.source))
-
-	def __eq__(self, other):
-		return self.index == other.index and self.source == other.source
+	# TODO Expand macros
 
 # TODO Probably this should be implemented as context manager
 # TODO Do changes only in memory and implement a save()/write() method
 # TODO Don't open files in each function, pass handler, etc.
 # TODO Think about race conditions, etc. (file locking?)
-# TODO Use functionality provided by Parser?
 class Editor:
 
 	def __init__(self, rpmfile):
 		self.rpmfile = rpmfile
 		self.last_source_line = 0
 		self.max_source_index = None
-		self.analyze()
+		self.sources = []
+		self.analyze_sources()
 		# TODO Raise exception when no sources found? Which line to add sources? -> Invalid spec file?
 
-	# Looks for Source tags in specified rpmfile
-	def analyze(self):
-		with open(self.rpmfile) as f:
-
-			# Counting the current line that is being processed right now
-			current_line = 0
-
-			# Iterate over file on a line by line basis
-			for line in f:
-
-				current_line += 1
-
-				# Check line for source tag (with or without index)
-				m = re.match('^Source(\d*):', line)
-
-				if m:
-					self.last_source_line = current_line
-					index = m.group(1)
-
-					# Skip on lines containing no index, i.e. `^Source:`
-					if index == '':
-						continue
-
-					# Check whether current index is the maximum one
-					index = int(index)
-					if (not self.max_source_index or index > self.max_source_index):
-						self.max_source_index = index
+	# Analyzes the sources
+	def analyze_sources(self):
+		self.sources = Parser(self.rpmfile).get_sources()
+		for source in self.sources:
+			if not self.max_source_index or source['index'] > self.max_source_index:
+				self.max_source_index = index
+			if source['line'] > self.last_source_line:
+				self.last_source_line = source['line']
 
 	# Return the next free source index (max + 1)
 	# Might lead to fragmentation
