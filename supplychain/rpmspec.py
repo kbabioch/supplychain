@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess
-import sys
 import re
 
 import tempfile
@@ -22,23 +20,26 @@ import shutil
 import os
 
 class Error(Exception):
-    pass
-
-# TODO Consolidate regular expressions (different versions used throughout the file)
+	pass
 
 class Parser:
 
 	def __init__(self, rpmfile):
 		self.rpmfile = rpmfile
+		self.sources = []
+		self.name = None
+		self.version = None
+		self.parse()
 
-	def get_sources(self):
-		sources = []
-		regexp = re.compile('^Source(?P<index>[0-9]*):\s*(?P<source>\S+)')
+	def parse(self):
 		with open(self.rpmfile) as f:
 			current_line = 0
 			for line in f:
+
 				current_line += 1
-				m = re.match(regexp, line)
+
+				# Check for Source tag
+				m = re.match(r'^Source(?P<index>[0-9]*):\s*(?P<source>\S+)', line)
 				if m:
 					index = m.group('index')
 					source = m.group('source')
@@ -46,10 +47,32 @@ class Parser:
 						index = int(index)
 					else:
 						index = None
-					sources.append({ 'index': index, 'source': source, 'line': current_line })
-		return sources
+					self.sources.append({ 'index': index, 'source': source, 'line': current_line })
 
-	# TODO Expand macros
+				# Check for name
+				m = re.match(r'^Name:\s*(?P<name>\S+)', line)
+				if m:
+					self.name = m.group('name')
+
+				# Check for version
+				m = re.match(r'^Version:\s*(?P<version>\S+)', line)
+				if m:
+					self.version = m.group('version')
+
+	def get_sources(self):
+		return self.sources
+
+	def get_name(self):
+		return self.name
+
+	def get_version(self):
+		return self.version
+
+	# TODO Do this in a more generic way
+	def expand(self, string):
+		string = re.sub(r'%{name}', self.name, string)
+		string = re.sub(r'%{version}', self.version, string)
+		return string
 
 # TODO Probably this should be implemented as context manager
 # TODO Do changes only in memory and implement a save()/write() method
