@@ -26,6 +26,7 @@ class UrlChecker:
   def isAvailable(url):
     try:
       request = requests.get(url)
+      # TODO Check for other status_codes?
       if request.status_code == requests.status_codes.codes.OK:
         return True
     except requests.exceptions.RequestException:
