@@ -30,15 +30,10 @@ class HttpReplacer:
   def callbackHttpUrl(self, match):
     url = match.group(0)
     if url not in self.ignoreUrls:
-      return self.replaceHttpUrlWhenAvailable(url)
-    return url
-
-  # Replaces http:// by https:// when available
-  def replaceHttpUrlWhenAvailable(self, url):
-    checker = supplychain.check.UrlChecker(url)
-    availableHttp = checker.isAvailableHttp()
-    availableHttps = checker.isAvailableHttps()
-    if availableHttp and availableHttps:
-      return checker.getHttps()
+        checker = supplychain.check.UrlChecker(url)
+        availableHttp = checker.isAvailableHttp()
+        availableHttps = checker.isAvailableHttps()
+        if availableHttp and availableHttps:
+          return checker.getHttps()
     return url
 
