@@ -3,83 +3,65 @@
 from supplychain.rpmspec import Parser, Editor
 from supplychain.check import SignatureFileChecker
 from supplychain.harden import HttpReplacer
+from supplychain.keyring import Keyring
 
+import os
 import tempfile
 import shutil
 
-filename = 'tests/specfiles/dkgpg.spec'
+filename = 'dkgpg.spec'
 
 p = Parser(filename)
 
 sources = []
-expanded_sources = []
+esources = []
 
 for source in p.get_sources():
-	sources.append(source['source'])
-	expanded_sources.append(p.expand(source['source']))
+    sources.append(source['source'])
+    esources.append(p.expand(source['source']))
 
-for source in expanded_sources:
-	signature_files = SignatureFileChecker(source).getSignatureFileUrls()
-	if signature_files:
-		print('Signature file(s) found for: {}'.format(source))
-		already_verified = False
-		for signature_file in signature_files:
-			if signature_file in expanded_sources:
-				print('Signature file already using: {}'.format(signature_file))
-				already_verified = True
-				break
-		if not already_verified:
-			print('Unused signature file(s): {}'.format(signature_files))
-	else:
-		print('No signature file(s) found for: {}'.format(source))
-
+signature_sources = []
 keyring_sources = []
 
-for source in expanded_sources:
-	if source.endswith('.keyring'):
-		keyring_sources.append(source)
-
-# TODO Get all signature files (*.asc, *.sig)
-sigs = []
-for source in expanded_sources:
-	# print(SignatureFileChecker.EXTENSIONS
-	pass
+for source in esources:
+    signature_files = SignatureFileChecker(source).getSignatureFileUrls()
+    if signature_files:
+        print('Signature file(s) found for: {}'.format(source))
+        already_verified = False
+        for signature_file in signature_files:
+            if signature_file in esources:
+                print('Signature file already using: {}'.format(signature_file))
+                already_verified = True
+                break
+        if not already_verified:
+            print('Unused signature file(s): {}'.format(signature_files))
+    else:
+        print('No signature file(s) found for: {}'.format(source))
+    filename, ext = os.path.splitext(source)
+    if ext in SignatureFileChecker.EXTENSIONS:
+        signature_sources.append(source)
+    if source.endswith('.keyring'):
+        keyring_sources.append(source)
 
 if not keyring_sources:
-	print('No keyring file is being used as source')
-elif keyring_sources.length != 1:
-	print('Wrong number of keyring file(s): {}'.format(keyring_sources))
-	# TODO Are multiple keyring files allowed?
+    print('No keyring file is being used as source')
+elif len(keyring_sources) != 1:
+    print('Wrong number of keyring file(s): {}'.format(keyring_sources))
+    # TODO Are multiple keyring files allowed?
 else:
-	print('Keyring file: {}'.format(keyring_sources))
+    print('Keyring file: {}'.format(keyring_sources))
 
-# TODO Check if keyring contains all keys?
-try:
-    homedir = tempfile.mkdtemp()
-    t = Keyring(homedir)
-	for file in sigs:
-        t.add_signature_file(file)
-    t.receive_keys()
-    t.minimize()
-    t.export('t.keyring')
-finally:
-    try:
-        shutil.rmtree(homedir)
-    except OSError as e:
-        if e.errno != errno.ENOENT:
-            raise
+# # Replace all http:// URLs in spec file
+# r = HttpReplacer()
+# r.addIgnoreUrl('http://bugs.opensuse.org/')
 
-# Replace all http:// URLs in spec file
-r = HttpReplacer()
-r.addIgnoreUrl('http://bugs.opensuse.org/')
+# with tempfile.NamedTemporaryFile('w', delete=False) as outfile:
+#     with open(filename, 'r') as infile:
+#         for line in infile:
+#             line = r.replace(line)
+#             outfile.write(line)
+#     shutil.move(outfile.name, filename) # TODO Using os.replace() would be better (race condition, etc.)
 
-with tempfile.NamedTemporaryFile('w', delete=False) as outfile:
-	with open(filename, 'r') as infile:
-		for line in infile:
-			line = r.replace(line)
-			outfile.write(line)
-	shutil.move(outfile.name, filename) # TODO Using os.replace() would be better (race condition, etc.)
-
-# TODO Check for changes
-# TODO commit and sr with osc?
+# # TODO Check for changes
+# # TODO commit and sr with osc?
 

@@ -59,6 +59,10 @@ class Keyring:
         for key in self.list_keys():
             gpg = self.gpg(['--edit-key', key, 'minimize', 'save', 'quit'])
 
+    # Import keys from file
+    def import_keyring(self, filename):
+        self.gpg(['--import', filename])
+
     # Export all keys to file (ASCII armor)
     def export(self, filename):
         with open(filename, 'w') as f:
