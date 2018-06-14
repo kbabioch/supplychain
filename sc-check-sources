@@ -2,10 +2,14 @@
 
 from supplychain.rpmspec import Parser, Editor
 from supplychain.check import SignatureFileChecker
+from supplychain.harden import HttpReplacer
 
-file = 'tests/specfiles/dkgpg.spec'
+import tempfile
+import shutil
 
-p = Parser(file)
+filename = 'tests/specfiles/dkgpg.spec'
+
+p = Parser(filename)
 
 sources = []
 expanded_sources = []
@@ -28,4 +32,54 @@ for source in expanded_sources:
 			print('Unused signature file(s): {}'.format(signature_files))
 	else:
 		print('No signature file(s) found for: {}'.format(source))
+
+keyring_sources = []
+
+for source in expanded_sources:
+	if source.endswith('.keyring'):
+		keyring_sources.append(source)
+
+# TODO Get all signature files (*.asc, *.sig)
+sigs = []
+for source in expanded_sources:
+	# print(SignatureFileChecker.EXTENSIONS
+	pass
+
+if not keyring_sources:
+	print('No keyring file is being used as source')
+elif keyring_sources.length != 1:
+	print('Wrong number of keyring file(s): {}'.format(keyring_sources))
+	# TODO Are multiple keyring files allowed?
+else:
+	print('Keyring file: {}'.format(keyring_sources))
+
+# TODO Check if keyring contains all keys?
+try:
+    homedir = tempfile.mkdtemp()
+    t = Keyring(homedir)
+	for file in sigs:
+        t.add_signature_file(file)
+    t.receive_keys()
+    t.minimize()
+    t.export('t.keyring')
+finally:
+    try:
+        shutil.rmtree(homedir)
+    except OSError as e:
+        if e.errno != errno.ENOENT:
+            raise
+
+# Replace all http:// URLs in spec file
+r = HttpReplacer()
+r.addIgnoreUrl('http://bugs.opensuse.org/')
+
+with tempfile.NamedTemporaryFile('w', delete=False) as outfile:
+	with open(filename, 'r') as infile:
+		for line in infile:
+			line = r.replace(line)
+			outfile.write(line)
+	shutil.move(outfile.name, filename) # TODO Using os.replace() would be better (race condition, etc.)
+
+# TODO Check for changes
+# TODO commit and sr with osc?
 
