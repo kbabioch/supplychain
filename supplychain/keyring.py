@@ -17,16 +17,15 @@ import subprocess
 import sys
 import re
 
-# TODO Minimize functionality?
-
 class Keyring:
 
+    # TODO Make use of this error class
     class GpgError(Exception):
         pass
 
     # https://git.gnupg.org/cgi-bin/gitweb.cgi?p=gnupg.git;a=blob_plain;f=doc/DETAILS
     RE_PUB = re.compile(r'^pub:(?P<validity>.):(?P<key_length>\d+)+:(?P<key_algo>\d+):(?P<key_id>[A-Z0-9]+):')
-    RE_SIG = ''
+    RE_SIG = re.compile(r'^:signature packet: algo [0-9]+, keyid (?P<key_id>[0-9A-F]+)$')
 
     # TODO Construct homedir on the fly, context manager
     # TODO Create homedir if not specified
@@ -47,22 +46,26 @@ class Keyring:
     def add_key_from_signature_file(self, signature_file):
         gpg = self.gpg(['--list-packets', signature_file])
         for line in gpg.stdout:
-            print(line, end='')
-        # regexp = re.compile(r'^:signature packet: algo [0-9]+, keyid (?P<keyid>[0-9A-F]+)$', re.MULTILINE)
-        # for key in re.findall(regexp, output):
-            # self.receive_key(key)
+            m = re.match(self.RE_SIG, line)
+            if m:
+                self.receive_key(m.group('key_id'))
 
     # Receive key for given keyid
     def receive_key(self, keyid):
         self.gpg(['--recv-key', keyid])
 
+    # Minimize all keys in keyring
+    def minimize(self):
+        for key in self.list_keys():
+            gpg = self.gpg(['--edit-key', key, 'minimize', 'save', 'quit'])
+
     # Export all keys to file (ASCII armor)
-    def export_keyring(self, filename):
+    def export(self, filename):
         with open(filename, 'w') as f:
-            self.gpg(['--export', '--armor'], stdout=f)
+            self.gpg(['--status-fd', '2', '--export', '--armor'], stdout=f)
 
     # Load keyring from file
-    def load_keyring(self, filename):
+    def load(self, filename):
         self.gpg(['--import', filename])
 
     # List keys from keyring
