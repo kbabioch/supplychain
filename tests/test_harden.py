@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import supplychain.harden
+import pytest
 
 availableUrlHttp = 'http://babioch.de'
 availableUrlHttps = 'https://babioch.de'
@@ -22,25 +23,24 @@ ignoreUrl = 'http://google.de'
 
 unavailableUrl = 'http://nonexisting.babioch.de'
 
-# TODO Setup object only once
+@pytest.fixture(scope='class')
+def replacer():
+  replacer = supplychain.harden.HttpReplacer()
+  replacer.addIgnoreUrl(ignoreUrl)
+  return replacer
 
 class TestHttpReplacer:
 
-  def test_replaceHttp(self):
-    replacer = supplychain.harden.HttpReplacer()
+  def test_replaceHttp(self, replacer):
     assert replacer.replace(availableUrlHttp) == availableUrlHttps
 
-  def test_replaceHttpNotAvailable(self):
-    replacer = supplychain.harden.HttpReplacer()
+  def test_replaceHttpNotAvailable(self, replacer):
     assert replacer.replace(unavailableUrl) == unavailableUrl
 
-  def test_replaceHttpInText(self):
-    replacer = supplychain.harden.HttpReplacer()
+  def test_replaceHttpInText(self, replacer):
     s = 'This is a text containing multiple HTTP URLs: ' + availableUrlHttp + ' , ' + availableUrlHttp + ' . It also contains a HTTPS URL: ' + availableUrlHttps
     assert replacer.replace(s) == s.replace('http://', 'https://')
 
-  def test_replaceHttpIgnoreUrl(self):
-    replacer = supplychain.harden.HttpReplacer()
-    replacer.addIgnoreUrl(ignoreUrl)
+  def test_replaceHttpIgnoreUrl(self, replacer):
     s = 'This is a text contains a URL that should be ignored: ' + ignoreUrl
     assert replacer.replace(s) == s
