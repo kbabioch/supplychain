@@ -17,10 +17,16 @@
 
 import argparse
 import errno
+import logging
 import shutil
 import sys
 import tempfile
 from supplychain.keyring import Keyring
+
+# Setup logging
+logger = logging.getLogger()
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.INFO) # TODO Configure this through the -v switch
 
 # TODO Check whether keyring already exists (-f parameter to force overwrite)
 # TODO Make more generic, so it can also import into default keyring
@@ -43,14 +49,15 @@ args = parse_args(sys.argv[1:])
 
 try:
     homedir = tempfile.mkdtemp()
-    t = Keyring(homedir)
+    logger.info('Creating temporary directory: %s', homedir)
+    keyring = Keyring(homedir)
     for file in args.files:
-        t.add_signature_file(file)
-    t.receive_keys()
-    t.minimize()
-    t.export(args.keyring)
+        keyring.add_key_from_signature_file(file)
+    keyring.list_keys()
+    keyring.export(args.keyring)
 finally:
     try:
+        logger.info('Removing GnuPG homedir: %s', homedir)
         shutil.rmtree(homedir)
     except OSError as e:
         if e.errno != errno.ENOENT:

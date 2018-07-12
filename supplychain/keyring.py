@@ -13,9 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import subprocess
 import sys
 import re
+
+logger = logging.getLogger(__name__)
 
 class Keyring:
 
@@ -33,6 +36,7 @@ class Keyring:
     # Initialize homedir for GPG
     def __init__(self, homedir):
         self.homedir = homedir
+        logger.info('Initializing keyring with GnuPG homedir: %s', homedir)
 
     # Run GPG
     def gpg(self, cmdline, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
@@ -40,37 +44,46 @@ class Keyring:
         # TODO Make this configurable?
         gpg = '/usr/bin/gpg'
         cmdline = [gpg, '--homedir', self.homedir, '--quiet', '--batch', '--yes', '--no-tty', '--no-greeting', '--with-colons', '--status-fd', '1', '--keyid-format', 'long'] + cmdline
+        logger.debug('Running gpg: %s', cmdline)
         return subprocess.Popen(cmdline, stdin=stdin, stdout=stdout, stderr=stderr, encoding=sys.getdefaultencoding())
 
     # Extracts keyids from provided signature file and adds them to keyring
     def add_key_from_signature_file(self, signature_file):
+        logger.info('Adding keys from signed file: %s', signature_file)
         gpg = self.gpg(['--list-packets', signature_file])
         for line in gpg.stdout:
             m = re.match(self.RE_SIG, line)
             if m:
+                logger.info('Found key in signed file: %s', m.group('key_id'))
                 self.receive_key(m.group('key_id'))
 
     # Receive key for given keyid
     def receive_key(self, keyid):
-        self.gpg(['--recv-key', keyid])
+        logger.info('Receiving key: %s', keyid)
+        self.gpg(['--recv-keys', keyid]).wait()
 
     # Minimize all keys in keyring
     def minimize(self):
+        logger.info('Minimizing keyring')
         for key in self.list_keys():
-            gpg = self.gpg(['--edit-key', key, 'minimize', 'save', 'quit'])
+            logger.info('Minimizing key: %s', key)
+            gpg = self.gpg(['--edit-key', key, 'minimize', 'save', 'quit']).wait()
 
     # Import keys from file
     def import_keyring(self, filename):
-        self.gpg(['--import', filename])
+        logger.info('Importing keyring from file: %s', filename)
+        self.gpg(['--import', filename]).wait()
 
     # Export all keys to file (ASCII armor)
     def export(self, filename):
+        logger.info('Exporting keyring to file: %s', filename)
         with open(filename, 'w') as f:
-            self.gpg(['--status-fd', '2', '--export', '--armor'], stdout=f)
+            self.gpg(['--status-fd', '2', '--export', '--armor'], stdout=f).wait()
 
     # Load keyring from file
     def load(self, filename):
-        self.gpg(['--import', filename])
+        logger.info('Loading keyring from file: %s', filename)
+        self.gpg(['--import', filename]).wait()
 
     # List keys from keyring
     def list_keys(self):
@@ -80,5 +93,6 @@ class Keyring:
             m = re.match(self.RE_PUB, line)
             if m:
                 keys.append(m.group('key_id'))
+        logger.info('Listing keys from keyring: %s', keys)
         return keys
 
