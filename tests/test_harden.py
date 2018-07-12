@@ -18,6 +18,8 @@ import supplychain.harden
 availableUrlHttp = 'http://babioch.de'
 availableUrlHttps = 'https://babioch.de'
 
+ignoreUrl = 'http://google.de'
+
 unavailableUrl = 'http://nonexisting.babioch.de'
 
 # TODO Setup object only once
@@ -25,15 +27,20 @@ unavailableUrl = 'http://nonexisting.babioch.de'
 class TestHttpReplacer:
 
   def test_replaceHttp(self):
-    h = supplychain.harden.HttpReplacer()
-    assert h.replace(availableUrlHttp) == availableUrlHttps
+    replacer = supplychain.harden.HttpReplacer()
+    assert replacer.replace(availableUrlHttp) == availableUrlHttps
 
   def test_replaceHttpNotAvailable(self):
-    h = supplychain.harden.HttpReplacer()
-    assert h.replace(unavailableUrl) == unavailableUrl
+    replacer = supplychain.harden.HttpReplacer()
+    assert replacer.replace(unavailableUrl) == unavailableUrl
 
   def test_replaceHttpInText(self):
-    h = supplychain.harden.HttpReplacer()
+    replacer = supplychain.harden.HttpReplacer()
     s = 'This is a text containing multiple HTTP URLs: ' + availableUrlHttp + ' , ' + availableUrlHttp + ' . It also contains a HTTPS URL: ' + availableUrlHttps
-    assert h.replace(s) == s.replace('http://', 'https://')
+    assert replacer.replace(s) == s.replace('http://', 'https://')
 
+  def test_replaceHttpIgnoreUrl(self):
+    replacer = supplychain.harden.HttpReplacer()
+    replacer.addIgnoreUrl(ignoreUrl)
+    s = 'This is a text contains a URL that should be ignored: ' + ignoreUrl
+    assert replacer.replace(s) == s
