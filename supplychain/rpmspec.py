@@ -13,67 +13,100 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess
-import sys
 import re
 
-class Error(Exception):
-    pass
+import tempfile
+import shutil
+import os
 
-# TODO Get rid of rpmspec requirement, parse them manually
+class Error(Exception):
+	pass
 
 class Parser:
 
 	def __init__(self, rpmfile):
+		self.rpmfile = rpmfile
+		self.sources = []
+		self.name = None
+		self.version = None
+		self.parse()
 
-		# TODO Make this configurable
-		# Used to expand macros, etc.
-		rpmspec = '/usr/bin/rpmspec'
+	def parse(self):
+		with open(self.rpmfile) as f:
+			current_line = 0
+			for line in f:
 
-		try:
-			# TODO Exception handling in decode
-			self.__output = subprocess.check_output([rpmspec, '-P', rpmfile]).decode(sys.stdout.encoding)
-		
-		except FileNotFoundError:
-			raise Error('rpmspec binary not found')
+				current_line += 1
 
-		except subprocess.CalledProcessError:
-			raise Error('invalid spec file')
+				# Check for Source tag
+				m = re.match(r'^Source(?P<index>[0-9]*):\s*(?P<source>\S+)', line)
+				if m:
+					index = m.group('index')
+					source = m.group('source')
+					if index:
+						index = int(index)
+					else:
+						index = None
+					self.sources.append({ 'index': index, 'source': source, 'line': current_line })
 
-	def get_sources(self):
+				# Check for name
+				m = re.match(r'^Name:\s*(?P<name>\S+)', line)
+				if m:
+					self.name = m.group('name')
 
-		sources = []
-		regexp = re.compile('^Source(?P<index>[0-9]*):\s*(?P<source>\S+)', re.MULTILINE)
+				# Check for version
+				m = re.match(r'^Version:\s*(?P<version>\S+)', line)
+				if m:
+					self.version = m.group('version')
 
-		for line in self.__output.splitlines():
-			m = re.match(regexp, line)
-			if m:
-				index = m.group('index')
-				source = m.group('source')
-				if index:
-					index = int(index)
-				else:
-					index = None
-				sources.append(Source(index, source))
+	# TODO Do this in a more generic way
+	def expand(self, string):
+		string = re.sub(r'%{name}', self.name, string)
+		string = re.sub(r'%{version}', self.version, string)
+		return string
 
-		return sources
-
-class Source:
-
-	def __init__(self, index, source):
-		self.index = index
-		self.source = source
-
-	def __str__(self):
-		print('Source{}: {}'.format(self.index, self.source))
-
-	def __eq__(self, other):
-		return self.index == other.index and self.source == other.source
-
+# TODO Probably this should be implemented as context manager
+# TODO Do changes only in memory and implement a save()/write() method
+# TODO Don't open files in each function, pass handler, etc.
+# TODO Think about race conditions, etc. (file locking?)
 class Editor:
 
 	def __init__(self, rpmfile):
 		self.rpmfile = rpmfile
+		self.last_source_line = 0
+		self.max_source_index = None
+		self.sources = []
+		self.analyze_sources()
+		# TODO Raise exception when no sources found? Which line to add sources? -> Invalid spec file?
 
+	# Analyzes the sources
+	def analyze_sources(self):
+		self.sources = Parser(self.rpmfile).sources
+		for source in self.sources:
+			if not self.max_source_index or source['index'] > self.max_source_index:
+				self.max_source_index = index
+			if source['line'] > self.last_source_line:
+				self.last_source_line = source['line']
+
+	# Return the next free source index (max + 1)
+	# Might lead to fragmentation
+	def get_next_source_index(self):
+		if not self.max_source_index:
+			return 1
+		return self.max_source_index + 1
+
+	# Add new source right after the last one
 	def add_source(self, source):
-		pass # TODO Implement
+		with tempfile.NamedTemporaryFile('w', delete=False) as outfile:
+			with open(self.rpmfile) as infile:
+				current_line = 0
+				for line in infile:
+					current_line += 1
+					outfile.write(line)
+					if current_line == self.last_source_line:
+						self.last_source_line += 1
+						current_line += 1
+						source_index = self.get_next_source_index()
+						outfile.write('Source{}: {}'.format(self.max_source_index, source) + os.linesep)
+		shutil.move(outfile.name, self.rpmfile) # TODO Using os.replace() would be better (race condition, etc.)
+

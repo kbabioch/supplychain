@@ -1,0 +1,39 @@
+#! /usr/bin/env python3
+
+# Scan directory for spec files, scans them, hardens them and prepares a OBS
+# submission
+#
+
+import argparse
+import glob
+import logging
+import os
+
+from supplychain.rpmspec import Parser, Editor
+
+parser = argparse.ArgumentParser(description='TODO')
+parser.add_argument('tree', metavar='TREE', help='Checked out OBS tree', type=str)
+# parser.add_argument('--max-submissions', dest='max', help='Maximum number of submissions')
+args = parser.parse_args()
+
+# Set up logging
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+
+# Iterate over all spec files in tree
+for specfile in glob.iglob(args.tree + '/**/*.spec', recursive=True):
+
+	logging.debug('Processing: {}'.format(specfile))
+
+	# Change directory
+	pkgpath = os.path.dirname(specfile)
+	logging.debug('Changing into directory: {}'.format(pkgpath))
+	os.chdir(pkgpath)
+
+	# Analyze specfile
+	p = Parser(specfile)
+	s = p.get_sources()
+
+	print(s)
+
+	break
