@@ -28,7 +28,7 @@ class TestUrlChecker:
 
   def test_isAvailable(self):
     assert UrlChecker.isAvailable(availableUrlHttp)
- 
+
   def test_isUnavailable(self):
     assert not UrlChecker.isAvailable(unavailableUrl)
 
