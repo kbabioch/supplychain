@@ -19,9 +19,6 @@ import tempfile
 import shutil
 import os
 
-class Error(Exception):
-	pass
-
 class Parser:
 
 	def __init__(self, rpmfile):
