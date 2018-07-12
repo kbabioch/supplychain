@@ -59,15 +59,6 @@ class Parser:
 				if m:
 					self.version = m.group('version')
 
-	def get_sources(self):
-		return self.sources
-
-	def get_name(self):
-		return self.name
-
-	def get_version(self):
-		return self.version
-
 	# TODO Do this in a more generic way
 	def expand(self, string):
 		string = re.sub(r'%{name}', self.name, string)
@@ -90,7 +81,7 @@ class Editor:
 
 	# Analyzes the sources
 	def analyze_sources(self):
-		self.sources = Parser(self.rpmfile).get_sources()
+		self.sources = Parser(self.rpmfile).sources
 		for source in self.sources:
 			if not self.max_source_index or source['index'] > self.max_source_index:
 				self.max_source_index = index
