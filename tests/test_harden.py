@@ -19,9 +19,9 @@ import pytest
 availableUrlHttp = 'http://babioch.de'
 availableUrlHttps = 'https://babioch.de'
 
-ignoreUrl = 'http://google.de'
-
 unavailableUrl = 'http://nonexisting.babioch.de'
+
+ignoreUrl = 'http://google.de'
 
 @pytest.fixture(scope='class')
 def replacer():
