@@ -13,13 +13,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import mock
-import subprocess
 from supplychain.rpmspec import Parser, Editor
-import pytest
+
+SPECFILE = 'tests/specfiles/dkgpg.spec'
 
 class TestParser:
-    pass
+
+    def test_parse_rpmfile(self):
+        parser = Parser(SPECFILE)
+        assert parser.rpmfile == SPECFILE
+        assert parser.name == 'dkgpg'
+        assert parser.version == '1.0.6'
+        assert parser.sources == [{'index': None, 'source': 'https://download.savannah.gnu.org/releases/dkgpg/%{name}-%{version}.tar.gz', 'line': 26}, {'index': 2, 'source': 'https://download.savannah.gnu.org/releases/dkgpg/%{name}-%{version}.tar.gz.sig', 'line': 27}, {'index': 3, 'source': '%{name}.keyring', 'line': 28}]
+
+    def test_expand(self):
+        parser = Parser(SPECFILE)
+        assert parser.expand('%{name}') == 'dkgpg'
+        assert parser.expand('%{version}') == '1.0.6'
+        assert parser.expand('%{name}-%{version}') == 'dkgpg-1.0.6'
 
 class TestEditor:
 	pass
