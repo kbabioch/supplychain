@@ -22,5 +22,22 @@ import subprocess
 import tempfile
 import pytest
 
+KEYRING = 'tests/keyrings/keyring.asc'
+SIGFILE = 'tests/signed/COPYING.sig'
+KEYS = ['749A65CD479F3215']
+
 class TestKeyring:
-    pass # TODO
+
+    def test_emptyKeyring(self):
+        with Keyring() as keyring:
+            assert len(keyring.list_keys()) == 0
+
+    def test_importKeyring(self):
+        with Keyring() as keyring:
+            keyring.load(KEYRING)
+            assert keyring.list_keys() == KEYS
+
+    def test_importSignatureFromFile(self):
+        with Keyring() as keyring:
+            keyring.add_key_from_signature_file(SIGFILE)
+            assert keyring.list_keys() == KEYS
