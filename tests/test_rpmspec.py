@@ -16,15 +16,16 @@
 from supplychain.rpmspec import Parser, Editor
 
 SPECFILE = 'tests/specfiles/dkgpg.spec'
+SOURCES = [{'index': None, 'source': 'https://download.savannah.gnu.org/releases/dkgpg/%{name}-%{version}.tar.gz', 'line': 26}, {'index': 2, 'source': 'https://download.savannah.gnu.org/releases/dkgpg/%{name}-%{version}.tar.gz.sig', 'line': 27}, {'index': 3, 'source': '%{name}.keyring', 'line': 28}]
 
 class TestParser:
 
-    def test_parse_rpmfile(self):
+    def test_parse(self):
         parser = Parser(SPECFILE)
         assert parser.rpmfile == SPECFILE
         assert parser.name == 'dkgpg'
         assert parser.version == '1.0.6'
-        assert parser.sources == [{'index': None, 'source': 'https://download.savannah.gnu.org/releases/dkgpg/%{name}-%{version}.tar.gz', 'line': 26}, {'index': 2, 'source': 'https://download.savannah.gnu.org/releases/dkgpg/%{name}-%{version}.tar.gz.sig', 'line': 27}, {'index': 3, 'source': '%{name}.keyring', 'line': 28}]
+        assert parser.sources == SOURCES
 
     def test_expand(self):
         parser = Parser(SPECFILE)
@@ -33,4 +34,15 @@ class TestParser:
         assert parser.expand('%{name}-%{version}') == 'dkgpg-1.0.6'
 
 class TestEditor:
-	pass
+
+    def test_analyze(self):
+        editor = Editor(SPECFILE)
+        assert editor.rpmfile == SPECFILE
+        assert editor.sources == SOURCES
+        assert editor.max_source_index == 3
+        assert editor.get_next_source_index() == 4
+        assert editor.last_source_line == 28
+
+    def test_add_source(self):
+        pass
+        # TODO Copy file, parse new file, etc.
