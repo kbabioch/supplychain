@@ -81,7 +81,7 @@ class Editor:
 		self.sources = Parser(self.rpmfile).sources
 		for source in self.sources:
 			if not self.max_source_index or source['index'] > self.max_source_index:
-				self.max_source_index = index
+				self.max_source_index = source['index']
 			if source['line'] > self.last_source_line:
 				self.last_source_line = source['line']
 
