@@ -23,17 +23,11 @@ import sys
 import tempfile
 from supplychain.keyring import Keyring
 
-# Setup logging
-logger = logging.getLogger()
-logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.INFO) # TODO Configure this through the -v switch
-
 # TODO Check whether keyring already exists (-f parameter to force overwrite)
 # TODO Make more generic, so it can also import into default keyring
 # TODO Interactive mode, e.g. show key and ask user whether to accept
 # TODO keyserver option?
 # TODO Templating for dirmngr.conf, etc.?
-# TODO Debugging output (verbosity)
 # TODO Option to append to already existing keyring
 
 # Argument parser
@@ -42,10 +36,20 @@ def parse_args(args):
     parser.add_argument('files', metavar='FILE', nargs='+', help='Signature file(s) to create keyring for', type=str)
     parser.add_argument('-k', '--keyring', dest='keyring', metavar='KEYRING', help='Keyring file to export retrieved keys to', type=str, default='keyring.asc') # Implement default basename of folder?
     parser.add_argument('-f', '--force-overwrite', dest='overwrite', help='Force overwrite of KEYRING', action='store_true') # TODO Implement
-    parser.add_argument('-v', '--verbose', dest='verbosity', help='Increase verbosity (multiple times for more output)', action='count', default=0) # TODO Implement debug output
+    parser.add_argument('-v', '--verbose', dest='verbosity', help='Increase verbosity (multiple times for more output)', action='count', default=0)
     return parser.parse_args(args)
 
+# Parse arguments
 args = parse_args(sys.argv[1:])
+
+# Setup logging
+logger = logging.getLogger()
+logger.addHandler(logging.StreamHandler())
+
+if args.verbosity == 1:
+    logger.setLevel(logging.INFO)
+elif args.verbosity == 2:
+    logger.setLevel(logging.DEBUG)
 
 with Keyring() as keyring:
     for file in args.files:
