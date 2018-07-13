@@ -63,9 +63,9 @@ class Keyring:
             logger.info('Minimizing key: %s', key)
             gpg = self.gpg(['--edit-key', key, 'minimize', 'save', 'quit']).wait()
 
-    # Import keys from file
-    def import_keyring(self, filename):
-        logger.info('Importing keyring from file: %s', filename)
+    # Load keyring from file
+    def load(self, filename):
+        logger.info('Loading keyring from file: %s', filename)
         self.gpg(['--import', filename]).wait()
 
     # Export all keys to file (ASCII armor)
@@ -73,11 +73,6 @@ class Keyring:
         logger.info('Exporting keyring to file: %s', filename)
         with open(filename, 'w') as f:
             self.gpg(['--status-fd', '2', '--export', '--armor'], stdout=f).wait()
-
-    # Load keyring from file
-    def load(self, filename):
-        logger.info('Loading keyring from file: %s', filename)
-        self.gpg(['--import', filename]).wait()
 
     # List keys from keyring
     def list_keys(self):
